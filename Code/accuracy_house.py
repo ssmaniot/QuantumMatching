@@ -1,4 +1,4 @@
-from kernel import *
+from signatures import *
 from misc import *
 from matching import compute_matching
 import numpy as np

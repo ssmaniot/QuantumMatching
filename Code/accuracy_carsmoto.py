@@ -1,4 +1,4 @@
-from kernel import *
+from signatures import *
 from misc import *
 from matching import compute_matching
 import numpy as np
@@ -8,7 +8,7 @@ import time
 
 start = time.time()
 
-dataset = "car"
+dataset = "moto" # moto/car
 path = "MAT/car_moto_pairs/{}_pairs/".format(dataset)
 
 if dataset == "car":
