@@ -41,13 +41,18 @@ def mixing_matrix_signature(Evec, Eval, t_min, t_max, dim, threshold):
 	t_interval = np.logspace(np.log10(t_min), np.log10(t_max), num=num_steps, endpoint=True)
 
 	discarded = 0
+
+	# Precomputing indices to access the upper-triangular section of matrix of pairwise differences between evals
+	# WITHOUT the main diagonal (we precompute the sum of "pointwise squared" projectors in PSAME)
 	uti = np.triu_indices(len(unique_eval) - 1)
 	uti_r, uti_c = uti[0], uti[1] + 1
+	# We cast the type to complex64 to prevent casting at each loop to compute np.sinc()
 	pairwise_subs = (unique_eval[:, np.newaxis] - unique_eval[np.newaxis, :])[uti_r, uti_c].astype("complex64")
+	# The loop is faster if we cast this sum to complex64 instead of casting P to complex64 at the moment of its creation
 	PSAME = np.sum(P * P, axis=0).astype("complex64")
 	for j, t in enumerate(t_interval):
 		"""
-		The computation of M is the slowest thing in this function.
+		The computation of PSINC and M is the most expensive one in the loop.
 		"""
 		mask = t * np.abs(pairwise_subs) / np.pi <= threshold
 		PSINC = P[uti_r[mask]] * P[uti_c[mask]]
@@ -118,9 +123,8 @@ def heat_kernel_signature(Evec, Eval, dim):
 		#for j, l in enumerate(unique_eval):
 		#	H += P[j] * np.exp(-l * t)
 		HKSdiag[:,i] = H.diagonal()
-		H = np.sort(H, axis=1)
 		Q = np.quantile(H, np.arange(1/dim, 1-1e-8, 1/dim), axis=1, interpolation="midpoint")
-		H = np.flip(np.sort(Q.T, axis=1), axis=1)
+		H = np.fliplr(Q.T) #(np.sort(Q.T, axis=1), axis=1)
 		HKSrow[:, np.arange(i*(dim-1), (i+1)*(dim-1))] = H[:, np.arange(dim-1)]
 
 	return HKSdiag, HKSrow
