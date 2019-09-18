@@ -12,15 +12,15 @@ start = time.time()
 
 dataset = "houses_full_reduced"
 path = "MAT/{}.mat".format(dataset)
-experiments = 1
+experiments = 2
 
 data = scipy.io.loadmat(path)
 G = data["G"]
 n = G.shape[1]
 t_min = 1e-1
 t_max = 1
-quantiles = 10
-thresholds = np.logspace(np.log10(1e-8), np.log10(100), num=20, endpoint=True) # [np.Inf]
+quantiles = 2
+thresholds = np.logspace(np.log10(1e-8), np.log10(1), num=4, endpoint=True) # [np.Inf]
 
 min_dim = np.Inf
 # determine minimum graph size
@@ -31,21 +31,21 @@ for g in range(n):
 
 quantiles = min(s, quantiles)
 
-outcomesHW = np.zeros(experiments * quantiles * 4, dtype="float64").reshape((experiments, quantiles, 4))
-outcomesMMS = np.zeros(experiments * quantiles * len(thresholds) * 4, dtype="float64").reshape((experiments, quantiles, len(thresholds), 4))
+outcomesHW = np.empty((experiments, quantiles, 4))
+outcomesMMS = np.empty((experiments, len(thresholds), quantiles, 4))
 idx = np.arange(4)
-round_per_exp = n * (n-1) / 2
+round_per_exp = n * (n-1) // 2
 tot = round_per_exp * experiments * quantiles * len(thresholds)
 i = 0
 
 # HKS/WKS: outcomesHW[experiment][quantile][HKS, errHKS, WKS, errWKS]
-# MMS: outcomesMMS[experiment][quantile][threshold][MMSdiag, errMMSdiag, MMSrow, errMMSrow]
+# MMS: outcomesMMS[experiment][threshold][quantile][MMSdiag, errMMSdiag, MMSrow, errMMSrow]
 
 for experiment in range(experiments):
 	avg_discarded = 0.0
 	pair = 0
 	resultHW = np.empty((round_per_exp, quantiles, 2))
-	resultMMS = np.empty((round_per_exp, quantiles, len(thresholds), 2))
+	resultMMS = np.empty((round_per_exp, len(thresholds), quantiles, 2))
 
 	for g1 in range(n):
 		G1 = G[0, g1]
@@ -66,8 +66,8 @@ for experiment in range(experiments):
 			G2 = P.T @ G2 @ P
 
 			quantile_resultHW = np.empty((0, 2))
-			quantile_resultMMS = np.empty((quantiles, len(thresholds), 2))
-			for di, d in range(min_dim - quantiles, quantiles + 1):
+			quantile_resultMMS = np.empty((len(thresholds), quantiles, 2))
+			for di, d in enumerate(range(min_dim - quantiles + 1, min_dim + 1)):
 				PHI1, E1 = eigsort(lap(G1))
 				HKSdiag1, _ = heat_kernel_signature(PHI1, E1, d)
 				WKSdiag1 = wave_kernel_signature(PHI1, E1)
@@ -83,7 +83,7 @@ for experiment in range(experiments):
 				# WKS
 				assignment_WKSdiag, num_matches_wks_diag = compute_matching(WKSdiag1, WKSdiag2, ground_truth)
 
-				quantile_resultHW = np.vstack([resultHW, np.array([
+				quantile_resultHW = np.vstack([quantile_resultHW, np.array([
 					num_matches_hks_diag / min_dim, # num_matches_hks_row / min_dim,
 					num_matches_wks_diag / min_dim])])
 
@@ -106,24 +106,33 @@ for experiment in range(experiments):
 					threshold_resultMMS = np.vstack([threshold_resultMMS, np.array([
 						num_matches_mms_diag / min_dim, num_matches_mms_row / min_dim])])
 
-				quantile_resultMMS[di] = threshold_resultMMS
+				quantile_resultMMS[:, di] = threshold_resultMMS
 
+			resultHW[pair] = quantile_resultHW
 			resultMMS[pair] = quantile_resultMMS
 			pair += 1
 
-	mean_accuracyHW = np.mean(quantile_resultHW, axis=0)
-	stderr_accuracyHW = np.std(quantile_resultHW, axis=0) / np.sqrt(quantile_resultMMS.shape[0])
-	outcomesHW[experiment, np.arange(2) * 2] = mean_accuracyHW
-	outcomesHW[experiment, np.arange(2) * 2 + 1] = stderr_accuracyHW
+	mean_accuracyHW = np.mean(resultHW, axis=0)
+	stderr_accuracyHW = np.std(resultHW, axis=0) / np.sqrt(resultHW.shape[0])
+	outcomesHW[experiment, :, np.arange(2) * 2] = mean_accuracyHW
+	outcomesHW[experiment, :, np.arange(2) * 2 + 1] = stderr_accuracyHW
 
-	mean_accuracyMMS = np.mean(quantile_resultMMS, axis=0)
-	stderr_accuracyMMS = np.std(quantile_resultMMS, axis=0) / np.sqrt(quantile_resultMMS.shape[0])
-	outcomesMMS[experiment, :, :, np.arange(2) * 2] = mean_accuracyMMS
-	outcomesMMS[experiment, :, :, np.arange(2) * 2 + 1] = stderr_accuracyMMS
+	mean_accuracyMMS = np.mean(resultMMS, axis=0)
+	stderr_accuracyMMS = np.std(resultMMS, axis=0) / np.sqrt(resultMMS.shape[0])
+	outcomesMMS[experiment, ..., np.arange(2) * 2] = np.transpose(mean_accuracyMMS, (1, 0, 2))
+	outcomesMMS[experiment, ..., np.arange(2) * 2 + 1] = np.transpose(stderr_accuracyMMS, (1, 0, 2))
 
 print("{:.3f}%".format(i / tot * 100))
 end = time.time()
 
-np.save("MAT/result_{}_thr.npy".format(dataset), outcomes)
+"""
+print("\nResults on HW/HK:")
+print(outcomesHW)
 
-print("Time elapsed = {:.3f}s".format(end - start))
+print("\nResults on MMS (shape = {}):".format(outcomesMMS.shape))
+print(outcomesMMS)
+"""
+
+np.savez("MAT/result_{}_thr.npz".format(dataset), name1 = outcomesHW, name2 = outcomesMMS)
+
+print("\nTime elapsed = {:.3f}s".format(end - start))
