@@ -43,6 +43,7 @@ i = 0
 
 for experiment in range(experiments):
 	avg_discarded = 0.0
+	pair = 0
 	resultHW = np.empty((round_per_exp, quantiles, 2))
 	resultMMS = np.empty((round_per_exp, quantiles, len(thresholds), 2))
 
@@ -107,12 +108,18 @@ for experiment in range(experiments):
 
 				quantile_resultMMS[di] = threshold_resultMMS
 
+			resultMMS[pair] = quantile_resultMMS
+			pair += 1
+
 	mean_accuracyHW = np.mean(quantile_resultHW, axis=0)
 	stderr_accuracyHW = np.std(quantile_resultHW, axis=0) / np.sqrt(quantile_resultMMS.shape[0])
-	outcomesHW[experiment] = 
+	outcomesHW[experiment, np.arange(2) * 2] = mean_accuracyHW
+	outcomesHW[experiment, np.arange(2) * 2 + 1] = stderr_accuracyHW
 
 	mean_accuracyMMS = np.mean(quantile_resultMMS, axis=0)
 	stderr_accuracyMMS = np.std(quantile_resultMMS, axis=0) / np.sqrt(quantile_resultMMS.shape[0])
+	outcomesMMS[experiment, :, :, np.arange(2) * 2] = mean_accuracyMMS
+	outcomesMMS[experiment, :, :, np.arange(2) * 2 + 1] = stderr_accuracyMMS
 
 print("{:.3f}%".format(i / tot * 100))
 end = time.time()
