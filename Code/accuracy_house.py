@@ -10,7 +10,7 @@ np.random.seed(46751)
 
 start = time.time()
 
-dataset = "houses_full_reduced"
+dataset = "houses_full"
 path = "MAT/{}.mat".format(dataset)
 experiments = 100
 
