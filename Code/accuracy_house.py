@@ -10,24 +10,26 @@ np.random.seed(46751)
 
 start = time.time()
 
-dataset = "houses_full"
+dataset = "houses_full_reduced"
 path = "MAT/{}.mat".format(dataset)
-experiments = 100
+experiments = 1
 
 data = scipy.io.loadmat(path)
 G = data["G"]
 n = G.shape[1]
 t_min = 1e-1
 t_max = 1
+thresholds = np.logspace(np.log10(1e-8), np.log10(100), num=20, endpoint=True) # [np.Inf]
 
 outcomes = np.zeros(experiments * 8, dtype="float64").reshape((experiments, 8))
 idx = np.arange(4)
 round_per_exp = n * (n-1) / 2
-tot = round_per_exp * experiments
+tot = round_per_exp * experiments * len(thresholds)
 i = 0
 
 for experiment in range(experiments):
-	for threshold in [np.Inf]:
+	for threshold in thresholds:
+		print("Threshold = {}".format(threshold))
 		avg_discarded = 0.0
 		result = np.empty((0, 4))
 
@@ -39,7 +41,7 @@ for experiment in range(experiments):
 				G2 = G[0, g2]
 				n2 = G2.shape[0]
 
-				print("{:.3f}%".format(i / tot * 100), end="\r")
+				#print("{:.3f}%".format(i / tot * 100), end="\r")
 				i += 1
 				
 				min_dim = min(n1, n2)
@@ -80,19 +82,29 @@ for experiment in range(experiments):
 				assignment_MMSdiag, num_matches_mms_diag = compute_matching(MMSdiag1, MMSdiag2, ground_truth)
 				assignment_MMSrow, num_matches_mms_row = compute_matching(MMSrow1, MMSrow2, ground_truth)
 
+				arr = np.array([
+					num_matches_hks_diag / min_dim, # num_matches_hks_row / min_dim,
+					num_matches_wks_diag / min_dim,
+					num_matches_mms_diag / min_dim, num_matches_mms_row / min_dim])
+				#print(arr)
+				result = np.vstack([result, arr])
+				"""
 				result = np.vstack([result, np.array([
 					num_matches_hks_diag / min_dim, # num_matches_hks_row / min_dim,
 					num_matches_wks_diag / min_dim,
 					num_matches_mms_diag / min_dim, num_matches_mms_row / min_dim])])
+				"""
 
 		mean_accuracy = np.mean(result, axis=0)
 		stderr_accuracy = np.std(result, axis=0) / np.sqrt(result.shape[0])
 		outcomes[experiment][idx * 2] = mean_accuracy
 		outcomes[experiment][idx * 2 + 1] = stderr_accuracy
+		print("Outcomes:")
+		print(np.round(outcomes, 3))
 
 print("{:.3f}%".format(i / tot * 100))
 end = time.time()
 
-np.save("MAT/result_{}.npy".format(dataset), outcomes)
+np.save("MAT/result_{}_thr.npy".format(dataset), outcomes)
 
 print("Time elapsed = {:.3f}s".format(end - start))
