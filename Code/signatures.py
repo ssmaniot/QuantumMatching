@@ -65,8 +65,11 @@ def mixing_matrix_signature(Evec, Eval, t_min, t_max, dim, threshold):
 		M = np.real(M)
 
 		MMSdiag[:,j] = np.diag(M)
+		#Q = np.quantile(M, np.arange(1/dim, 1-1e-8, 1/dim), axis=1, interpolation="midpoint")
+		#M = np.fliplr(Q.T)
+		# M = np.fliplr(np.sort(M, axis=1))
 		Q = np.quantile(M, np.arange(1/dim, 1-1e-8, 1/dim), axis=1, interpolation="midpoint")
-		M = np.fliplr(Q.T)
+		M = np.fliplr(np.sort(Q.T, axis=1))
 		MMSrow[:, np.arange(j*(dim-1), (j+1)*(dim-1))] = M[:, np.arange(dim-1)]
 
 	num_of_discarded_pairs = discarded / (len(t_interval) * len(unique_eval) ** 2)

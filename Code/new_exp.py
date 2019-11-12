@@ -10,7 +10,7 @@ np.random.seed(46751)
 
 start = time.time()
 
-dataset = "houses_full_reduced" # "socnet"
+dataset = "houses_full_reduced"
 path = "MAT/{}.mat".format(dataset)
 
 data = scipy.io.loadmat(path)
@@ -19,8 +19,8 @@ n = G.shape[1]
 quantiles = min(30, min([G[0,i].shape[0] for i in range(n)]))
 
 t_min = 1e-1
-t_max = np.linspace(1, 20, num=8, endpoint=True) # go to 100
-quantiles = np.arange(5, quantiles + 1, step=5)
+t_max = np.linspace(1, 100, num=20, endpoint=True) # go to 100
+quantiles = np.arange(2, quantiles + 1, step=2)
 thresholds = [np.Inf] # np.logspace(-8, 9, num=8)# [np.Inf]
 
 """
