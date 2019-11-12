@@ -107,4 +107,4 @@ end = time.time()
 
 np.save("MAT/result_{}_thr.npy".format(dataset), outcomes)
 
-print("Time elapsed = {:.3f}s".format(end - start))
+timer(start, end)

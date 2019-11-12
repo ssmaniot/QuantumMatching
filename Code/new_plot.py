@@ -1,0 +1,47 @@
+# This import registers the 3D projection, but is otherwise unused.
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator, FormatStrFormatter
+from matplotlib.colors import LightSource
+import numpy as np
+
+dataset = "socnet"
+data = np.load("MAT/result_{}_thr.npz".format(dataset))
+
+outcomesHW = data['outcomeHW']
+outcomesMMS = data['outcomeMMS']
+t_max = data['t_max']
+thresholds = data['thresholds']
+quantiles = data['quantiles']
+
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+
+# Make data.
+X = quantiles.astype("int64")
+Y = t_max
+X, Y = np.meshgrid(X, Y)
+# R = np.sqrt(X**2 + Y**2)
+Z = np.transpose(outcomesMMS[..., 0, 0])
+
+# Plot the surface.
+ls = LightSource(270, 45)
+rgb = ls.shade(Z, cmap=cm.gist_earth, vert_exag=0.1, blend_mode='soft')
+surf = ax.plot_surface(X, Y, Z, facecolors=rgb, # cmap=cm.coolwarm,
+                       linewidth=0, antialiased=False)
+ax.set_xlabel(r"quantiles")
+ax.set_ylabel(r"$t_{\max}$")
+
+# Customize the z axis.
+# ax.set_zlim(-1.01, 1.01)
+ax.zaxis.set_major_locator(LinearLocator(10))
+ax.zaxis.set_major_formatter(FormatStrFormatter('%.02f'))
+ax.set_zlabel(r"Avg. Accuracy MMS (%)")
+
+# Add a color bar which maps values to colors.
+fig.colorbar(surf, shrink=0.5, aspect=5)
+
+plt.title("MMS on {}".format(dataset))
+plt.show()
