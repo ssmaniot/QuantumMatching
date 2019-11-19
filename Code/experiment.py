@@ -16,11 +16,11 @@ path = "MAT/{}.mat".format(dataset)
 data = scipy.io.loadmat(path)
 G = data["G"]
 n = G.shape[1]
-quantiles = min(30, min([G[0,i].shape[0] for i in range(n)]))
+quantiles = 10
 
 t_min = 1e-1
 t_max = np.linspace(1, 100, num=20, endpoint=True) # go to 100
-quantiles = np.arange(2, quantiles + 1, step=2)
+quantiles = np.arange(2, quantiles + 1)
 thresholds = [np.Inf] # np.logspace(-8, 9, num=8)# [np.Inf]
 
 """
@@ -124,7 +124,7 @@ outcomesMMS[..., 1::2] = stderr_accuracyMMS
 print("{:.3f}%".format(i / tot * 100))
 end = time.time()
 
-np.savez("MAT/result_{}_thr.npz".format(dataset), outcomeHW = outcomesHW, outcomeMMS = outcomesMMS,
+np.savez("MAT/result_{}.npz".format(dataset), outcomeHW = outcomesHW, outcomeMMS = outcomesMMS,
 	quantiles = quantiles, t_max = t_max, thresholds = thresholds)
 
-timer(start, end)
+print("Elapsed time", timer(start, end))

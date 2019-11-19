@@ -1,5 +1,17 @@
 import numpy as np
-import scipy.spatial.distance as ssd
+
+def old_MMSrow(n, num_steps, dim):
+	return np.empty(n * num_steps * (dim - 1), dtype="float32").reshape((n, num_steps * (dim - 1)))
+
+def old_quantile(M, dim):
+	Q = np.quantile(M, np.arange(1/dim, 1-1e-8, 1/dim), axis=1, interpolation="midpoint")
+	return np.fliplr(np.sort(Q.T, axis=1))
+
+def new_MMSrow(n, num_steps, dim):
+	return np.empty(n * num_steps * dim*(dim-1)//2, dtype="float32").reshape((n, num_steps * dim*(dim-1)//2))
+
+def new_quantile(M, dim):
+	return np.vstack([np.quantile(M, np.arange(1/q, 1-1e-8, 1/q), axis=1, interpolation="midpoint") for q in np.arange(2, dim + 1)]).T
 
 def mixing_matrix_signature(Evec, Eval, t_min, t_max, dim, threshold):
 	# n = G.shape[0]
@@ -36,7 +48,8 @@ def mixing_matrix_signature(Evec, Eval, t_min, t_max, dim, threshold):
 	MMSdiag = np.zeros(n * num_steps, dtype="float32").reshape((n, num_steps))
 	# signature is concatenation of first dim elements of rows for increasing t
 	# original code should be "n * num_steps * (dim-1)", reshape((n, num_steps * (dim-1)))
-	MMSrow = np.zeros(n * num_steps * (dim - 1), dtype="float32").reshape((n, num_steps * (dim - 1)))
+	# MMSrow = old_MMSrow(n, num_steps, dim)
+	MMSrow = new_MMSrow(n, num_steps, dim)
 
 	t_interval = np.logspace(np.log10(t_min), np.log10(t_max), num=num_steps, endpoint=True)
 
@@ -68,9 +81,14 @@ def mixing_matrix_signature(Evec, Eval, t_min, t_max, dim, threshold):
 		#Q = np.quantile(M, np.arange(1/dim, 1-1e-8, 1/dim), axis=1, interpolation="midpoint")
 		#M = np.fliplr(Q.T)
 		# M = np.fliplr(np.sort(M, axis=1))
+		"""
+		OLD CODE
 		Q = np.quantile(M, np.arange(1/dim, 1-1e-8, 1/dim), axis=1, interpolation="midpoint")
 		M = np.fliplr(np.sort(Q.T, axis=1))
+		M = old_quantile(M, dim)
 		MMSrow[:, np.arange(j*(dim-1), (j+1)*(dim-1))] = M[:, np.arange(dim-1)]
+		"""
+		MMSrow[:, np.arange(j*dim*(dim-1)//2, (j+1)*dim*(dim-1)//2)] = new_quantile(M, dim)
 
 	num_of_discarded_pairs = discarded / (len(t_interval) * len(unique_eval) ** 2)
 

@@ -7,8 +7,8 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.colors import LightSource
 import numpy as np
 
-dataset = "socnet"#"houses_full_reduced"
-data = np.load("MAT/result_{}_thr.npz".format(dataset))
+dataset = "delaunay-graphs" #"socnet"
+data = np.load("MAT/result_{}.npz".format(dataset))
 
 outcomesHW = data['outcomeHW']
 outcomesMMS = data['outcomeMMS']
@@ -20,11 +20,11 @@ fig = plt.figure()
 ax = fig.gca(projection='3d')
 
 # Make data.
-X = quantiles
-Y = t_max
+X = t_max
+Y = quantiles
 X, Y = np.meshgrid(X, Y)
 # R = np.sqrt(X**2 + Y**2)
-Z = np.transpose(outcomesMMS[..., 0, 2])
+Z = np.transpose(np.swapaxes(outcomesMMS, 0, 1)[..., 0, 2])
 
 # Plot the surface.
 ls = LightSource(270, 45)
@@ -32,8 +32,8 @@ m = cm.gist_earth#viridis
 rgb = ls.shade(Z, cmap=m, vert_exag=0.1, blend_mode='soft')
 surf = ax.plot_surface(X, Y, Z, facecolors=rgb, # cmap=cm.coolwarm,
                        linewidth=0, antialiased=False)
-ax.set_xlabel(r"quantiles")
-ax.set_ylabel(r"$t_{\max}$")
+ax.set_xlabel(r"$t_{\max}$")
+ax.set_ylabel(r"First $q$-quantiles")
 
 # Customize the z axis.
 # ax.set_zlim(-1.01, 1.01)
@@ -45,4 +45,5 @@ ax.set_zlabel(r"Avg. Accuracy MMS (%)")
 fig.colorbar(surf, shrink=0.5, aspect=5)
 
 plt.title("MMS row on {}".format(dataset))
+plt.yticks(range(quantiles[0], quantiles[-1] + 1))
 plt.show()
