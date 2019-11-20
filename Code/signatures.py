@@ -174,7 +174,7 @@ def wave_kernel_signature(Evec, Eval):
 	# Could be vectorized
 	for i in range(N):
 		WKS[:,i] = np.sum(np.multiply(np.power(PHI, 2), 
-			np.tile(np.exp(-np.power((e[i] - log_E), 2) / (2 * sigma ** 2)), (n, 1))), axis=1)
+			np.tile(np.exp(-np.power((e[i] - log_E), 2) / (2 * sigma ** 2)), (n, 1))), axis=1).ravel()
 		C[i] = np.sum(np.exp(-np.power((e[i] - log_E), 2) / (2 * sigma ** 2)))
 	
 	# normalize WKS 
