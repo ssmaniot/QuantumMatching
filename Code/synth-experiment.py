@@ -11,7 +11,7 @@ np.random.seed(46751)
 start_script = time.time()
 start = start_script
 
-datasets = ["delaunay_graphs", "knn_k3_graphs", "knn_k4_graphs", "knn_k5_graphs", "scale_free_graphs", "small_world_graphs"]
+datasets = ["small_world_k{}_graphs".format(k) for k in range(4, 5)] #["delaunay_graphs", "knn_k3_graphs", "knn_k4_graphs", "knn_k5_graphs", "scale_free_graphs", "small_world_graphs"]
 
 for dataset in datasets:
 	path = "SynthGen/{}.npz".format(dataset)

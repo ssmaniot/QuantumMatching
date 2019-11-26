@@ -6,7 +6,10 @@ from sklearn.neighbors import kneighbors_graph
 import networkx as nx 
 
 def small_world_graph(n, k=2, p=0.1):
-	return nx.adjacency_matrix(nx.connected_watts_strogatz_graph(n, k=2, p=0.1)).todense().astype('float32')
+	G = nx.connected_watts_strogatz_graph(n, k, p)
+	while nx.algorithms.smallworld.sigma(G, niter=10) <= 1.0:
+		G = nx.connected_watts_strogatz_graph(n, k, p)
+	return nx.adjacency_matrix(G).todense().astype('float32')
 
 def scale_free_graph(n):
 	return nx.adjacency_matrix(nx.Graph(nx.scale_free_graph(n))).todense().astype('float32')

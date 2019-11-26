@@ -87,14 +87,17 @@ for k in range(3, K + 1):
 """
 small-world graphs
 """
-for i in range(graphs_per_dataset):
-	G[0,i] = np.empty(T, dtype='O')
-	g = small_world_graph(n)
-	G[0,i][0] = g
+for k in range(4, 5):
+	for i in range(graphs_per_dataset):
+		print("small-world graphs {}/{}".format(i+1, graphs_per_dataset), end='\r')
+		G[0,i] = np.empty(T, dtype='O')
+		g = small_world_graph(n, k, p=0.1)
+		G[0,i][0] = g
 
-	for t in range(1, T):
-		G[0,i][t] = perturbe_graph(g, threshold)
-np.savez("small_world_graphs.npz", G=G)
+		for t in range(1, T):
+			G[0,i][t] = perturbe_graph(g, threshold)
+	print()
+	np.savez("small_world_k{}_graphs.npz".format(k), G=G)
 
 """
 scale-free graphs
