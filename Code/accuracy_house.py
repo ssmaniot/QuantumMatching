@@ -19,7 +19,7 @@ G = data["G"]
 n = G.shape[1]
 t_min = 1e-1
 t_max = 1
-thresholds = np.logspace(np.log10(1e-8), np.log10(100), num=20, endpoint=True) # [np.Inf]
+thresholds = [np.inf] #np.logspace(np.log10(1e-8), np.log10(100), num=20, endpoint=True) # [np.Inf]
 
 outcomes = np.zeros(experiments * 8, dtype="float64").reshape((experiments, 8))
 idx = np.arange(4)
@@ -55,7 +55,7 @@ for experiment in range(experiments):
 				G2 = P.T @ G2 @ P
 
 				# use first d quantiles
-				d = min_dim
+				d = min_dim # min_dim
 
 				PHI1, E1 = eigsort(lap(G1))
 				HKSdiag1, _ = heat_kernel_signature(PHI1, E1, d)
@@ -105,6 +105,6 @@ for experiment in range(experiments):
 print("{:.3f}%".format(i / tot * 100))
 end = time.time()
 
-np.save("MAT/result_{}_thr.npy".format(dataset), outcomes)
+np.save("MAT/result_{}_dmin.npy".format(dataset), outcomes)
 
 timer(start, end)

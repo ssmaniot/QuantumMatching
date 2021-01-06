@@ -1,5 +1,5 @@
 # This import registers the 3D projection, but is otherwise unused.
-from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+# from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 import matplotlib.pyplot as plt
 from matplotlib import cm
@@ -7,7 +7,7 @@ from matplotlib.ticker import LinearLocator, FormatStrFormatter
 from matplotlib.colors import LightSource
 import numpy as np
 
-synth = ["small_world_k{}_graphs".format(k) for k in range(2, 6)] # ["delaunay_graphs", "knn_k3_graphs", "knn_k4_graphs", "knn_k5_graphs", "scale_free_graphs", "small_world_graphs"]
+synth = ["small_world_k{}_graphs".format(k) for k in [4,5]] # ["delaunay_graphs", "knn_k3_graphs", "knn_k4_graphs", "knn_k5_graphs", "scale_free_graphs", "small_world_graphs"]
 for dataset in synth:
 	data = np.load("MAT/result_{}.npz".format(dataset))
 

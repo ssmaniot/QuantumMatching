@@ -12,7 +12,7 @@ start = time.time()
 
 dataset = "socnet"
 path = "MAT/{}.mat".format(dataset)
-experiments = 100
+experiments = 1
 
 data = scipy.io.loadmat(path)
 G = data["G"]
@@ -93,6 +93,6 @@ for experiment in range(experiments):
 print("{:.3f}%".format(i / tot * 100))
 end = time.time()
 
-np.save("MAT/result_{}.npy".format(dataset), outcomes)
+np.save("MAT/result_{}_dmin.npy".format(dataset), outcomes)
 
 print("Time elapsed = {:.3f}s".format(end - start))

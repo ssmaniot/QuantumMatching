@@ -87,9 +87,9 @@ for k in range(3, K + 1):
 """
 small-world graphs
 """
-for k in range(4, 5):
+for k in range(4, 5+1):
 	for i in range(graphs_per_dataset):
-		print("small-world graphs {}/{}".format(i+1, graphs_per_dataset), end='\r')
+		print("small-world k={} graphs {}/{}".format(k, i+1, graphs_per_dataset), end='\r')
 		G[0,i] = np.empty(T, dtype='O')
 		g = small_world_graph(n, k, p=0.1)
 		G[0,i][0] = g

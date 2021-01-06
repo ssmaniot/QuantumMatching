@@ -89,6 +89,6 @@ for experiment in range(experiments):
 print("{:.3f}%".format(j / tot * 100))
 end = time.time()
 
-np.save("MAT/result_{}.npy".format(dataset), outcomes)
+np.save("MAT/result_{}_dmin.npz".format(dataset), outcomes)
 
 print("Time elapsed = {:.3f}s".format(end - start))

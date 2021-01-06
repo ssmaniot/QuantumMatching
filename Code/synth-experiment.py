@@ -11,7 +11,7 @@ np.random.seed(46751)
 start_script = time.time()
 start = start_script
 
-datasets = ["small_world_k{}_graphs".format(k) for k in range(4, 5)] #["delaunay_graphs", "knn_k3_graphs", "knn_k4_graphs", "knn_k5_graphs", "scale_free_graphs", "small_world_graphs"]
+datasets = ["delaunay_graphs", "knn_k3_graphs", "knn_k4_graphs", "knn_k5_graphs", "scale_free_graphs", "small_world_k4_graphs", "small_world_k5_graphs"] #["small_world_k{}_graphs".format(k) for k in range(4, 5)] 
 
 for dataset in datasets:
 	path = "SynthGen/{}.npz".format(dataset)
@@ -23,8 +23,8 @@ for dataset in datasets:
 	quantiles = 10
 
 	t_min = 1e-1
-	t_max = np.linspace(1, 100, num=20, endpoint=True) # go to 100
-	quantiles = np.arange(2, quantiles + 1)
+	t_max = [1] #np.linspace(1, 100, num=20, endpoint=True) # go to 100
+	quantiles = [5,10,-1]#np.arange(2, quantiles + 1)
 	thresholds = [np.Inf] # np.logspace(-8, 9, num=8)# [np.Inf]
 
 	"""
@@ -73,6 +73,9 @@ for dataset in datasets:
 			quantile_resultMMS = np.empty((len(quantiles), len(t_max), len(thresholds), 2))
 
 			for di, d in enumerate(quantiles):
+				if d == -1:
+					d = min_dim 
+					
 				PHI1, E1 = eigsort(lap(G1))
 				HKSdiag1, _ = heat_kernel_signature(PHI1, E1, d)
 				WKSdiag1 = wave_kernel_signature(PHI1, E1)
