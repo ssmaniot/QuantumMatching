@@ -2,17 +2,49 @@ import numpy as np
 
 postfix = ["_dmin", "_d10", "_d5"]
 prefix = ["car", "houses_full_reduced", "moto", "socnet"]
-knn = ["knn_k{}_graphs".format(i) for i in range(3, 6)]
-small_world = ["small_world_k{}_graphs".format(i) for i in range(4, 6)]
-datasets = ["delaunay_graphs", "scale_free_graphs"] + knn + small_world + [pre + post for post in postfix for pre in prefix]
+real = [pre + post for post in postfix for pre in prefix]
+synthetic = ["delaunay_graphs", "knn_k3_graphs", "knn_k4_graphs", "knn_k5_graphs", "scale_free_graphs", "small_world_k4_graphs", "small_world_k5_graphs"]
+datasets = real + synthetic
 results = ["result_{}.npz".format(dataset) for dataset in datasets]
 
-data = np.load("MAT/result_car_dmin.npy")
-# print(datasets)
-# data = np.load("MAT/{}".format(results[0]))
-print(data.files)
-outcomeMMS = data['outcomeMMS']
-print(outcomeMMS[:,:,:,2])
-exit()
-print('mean: {}'.format(np.mean(outcomeMMS[0][ ::2])))
-print('  sd: {}'.format(np.mean(outcomeMMS[0][1::2])))
+if False:
+	for dataset in real:
+		fname = 'MAT/result_{}.npy'.format(dataset)
+		data = np.load(fname)
+		print(dataset)
+		print('mean: {}'.format(np.mean(data[:,0::2], axis=0)))
+		print('  sd: {}'.format(np.mean(data[:,1::2], axis=0)))
+		print('')
+else:
+	print('')
+	print('Real Datasets')
+	print('~~~~~~~~~~~~~')
+	for dataset in prefix:
+		dmin = np.load('MAT/result_{}_dmin.npy'.format(dataset))
+		d5   = np.load('MAT/result_{}_d5.npy'.format(dataset))
+		d10  = np.load('MAT/result_{}_d10.npy'.format(dataset))
+		data = np.hstack([dmin[:,:4], d5[:,:2], d10[:,:2], dmin[:,4:], d5[:,4:], d10[:,4:]])
+		m = np.mean(data[:,0::2], axis = 0)
+		sd = np.mean(data[:,1::2], axis = 0)
+		print(dataset)
+		print('-' * len(dataset))
+		print('       HKSmin WKS    HKSd5  HKSd10 MMRmin MMDmin MMRd5  MMDd5  MMRd10 MMDd10')
+		print('mean: {}'.format(np.round(m, 4)))
+		print('  sd: {}'.format(np.round(sd, 4)))
+		print('\n')
+		
+	print('Synthetic Datasets')
+	print('~~~~~~~~~~~~~~~~~~')
+	for dataset in synthetic:
+		data = np.load('MAT/result_{}.npz'.format(dataset))
+		hw = data['outcomeHW']
+		mms = data['outcomeMMS']
+		qs = data['quantiles'].shape[0]
+		m =  np.hstack([hw[0,0], hw[0,2]] + [hw[q,0] for q in range(1, qs)] + [mms[q,0,0,::2] for q in range(qs)])
+		sd =  np.hstack([hw[0,1], hw[0,3]] + [hw[q,1] for q in range(1, qs)] + [mms[q,0,0,1::2] for q in range(qs)])
+		print(dataset)
+		print('-' * len(dataset))
+		print('       HKSmin WKS    HKSd5  HKSd10 MMRmin MMDmin MMRd5  MMDd5  MMRd10 MMDd10')
+		print('mean: {}'.format(np.round(m, 4)))
+		print('  sd: {}'.format(np.round(sd, 4)))
+		print('\n')

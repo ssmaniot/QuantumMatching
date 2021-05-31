@@ -10,18 +10,18 @@ np.random.seed(46751)
 
 start = time.time()
 
-dataset = "car" # moto/car
+dataset = "moto" # moto/car
 path = "MAT/car_moto_pairs/{}_pairs/".format(dataset)
 experiments = 100
 
 if dataset == "car":
 	num_pairs = 30
-	t_min = 1e-2
+	t_min = 1.e-2
 else:
 	num_pairs = 20
-	t_min = 1e-3
+	t_min = 1.e-3
 
-t_max = 1
+t_max = 1.
 
 outcomes = np.zeros(experiments * 8, dtype="float64").reshape((experiments, 8))
 idx = np.arange(4)
@@ -48,7 +48,7 @@ for experiment in range(experiments):
 		G2 = P.T @ G2 @ P
 
 		# use first d quantiles
-		d = n
+		d = 10
 		threshold = np.Inf
 
 		PHI1, E1 = eigsort(lap(G1))
@@ -89,6 +89,6 @@ for experiment in range(experiments):
 print("{:.3f}%".format(j / tot * 100))
 end = time.time()
 
-np.save("MAT/result_{}_dmin.npz".format(dataset), outcomes)
+np.save("MAT/result_{}_d10.npy".format(dataset), outcomes)
 
 print("Time elapsed = {:.3f}s".format(end - start))

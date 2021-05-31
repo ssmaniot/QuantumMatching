@@ -17,13 +17,13 @@ experiments = 1
 data = scipy.io.loadmat(path)
 G = data["G"]
 n = G.shape[1]
-t_min = 1e-1
-t_max = 1
+t_min = 1.e-1
+t_max = 1.
 thresholds = [np.inf] #np.logspace(np.log10(1e-8), np.log10(100), num=20, endpoint=True) # [np.Inf]
 
 outcomes = np.zeros(experiments * 8, dtype="float64").reshape((experiments, 8))
 idx = np.arange(4)
-round_per_exp = n * (n-1) / 2
+round_per_exp = n * (n - 1) / 2
 tot = round_per_exp * experiments * len(thresholds)
 i = 0
 
@@ -41,7 +41,7 @@ for experiment in range(experiments):
 				G2 = G[0, g2]
 				n2 = G2.shape[0]
 
-				#print("{:.3f}%".format(i / tot * 100), end="\r")
+				print("{:.3f}%".format(i / tot * 100), end="\r")
 				i += 1
 				
 				min_dim = min(n1, n2)
@@ -55,7 +55,7 @@ for experiment in range(experiments):
 				G2 = P.T @ G2 @ P
 
 				# use first d quantiles
-				d = min_dim # min_dim
+				d = 10#min_dim # min_dim
 
 				PHI1, E1 = eigsort(lap(G1))
 				HKSdiag1, _ = heat_kernel_signature(PHI1, E1, d)
@@ -105,6 +105,6 @@ for experiment in range(experiments):
 print("{:.3f}%".format(i / tot * 100))
 end = time.time()
 
-np.save("MAT/result_{}_dmin.npy".format(dataset), outcomes)
+np.save("MAT/result_{}_d10.npy".format(dataset), outcomes)
 
 timer(start, end)

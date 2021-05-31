@@ -52,7 +52,7 @@ for experiment in range(experiments):
 			G2 = P.T @ G2 @ P
 
 			# use first d quantiles
-			d = min_dim
+			d = 10#min_dim
 
 			PHI1, E1 = eigsort(lap(G1))
 			HKSdiag1, _ = heat_kernel_signature(PHI1, E1, d)
@@ -93,6 +93,6 @@ for experiment in range(experiments):
 print("{:.3f}%".format(i / tot * 100))
 end = time.time()
 
-np.save("MAT/result_{}_dmin.npy".format(dataset), outcomes)
+np.save("MAT/result_{}_d10.npy".format(dataset), outcomes)
 
 print("Time elapsed = {:.3f}s".format(end - start))

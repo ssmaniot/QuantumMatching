@@ -23,7 +23,7 @@ for dataset in datasets:
 	quantiles = 10
 
 	t_min = 1e-1
-	t_max = [1] #np.linspace(1, 100, num=20, endpoint=True) # go to 100
+	t_max = [1.] #np.linspace(1, 100, num=20, endpoint=True) # go to 100
 	quantiles = [5,10,-1]#np.arange(2, quantiles + 1)
 	thresholds = [np.Inf] # np.logspace(-8, 9, num=8)# [np.Inf]
 
@@ -131,7 +131,7 @@ for dataset in datasets:
 	print("{:.3f}%".format(i / tot * 100))
 	end = time.time()
 
-	np.savez("MAT/result_{}.npz".format(dataset), outcomeHW = outcomesHW, outcomeMMS = outcomesMMS,
+	np.savez("MAT/result_{}".format(dataset), outcomeHW = outcomesHW, outcomeMMS = outcomesMMS,
 		quantiles = quantiles, t_max = t_max, thresholds = thresholds)
 
 	print("Elapsed time", timer(start, end))
