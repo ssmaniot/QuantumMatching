@@ -3,7 +3,7 @@ import numpy as np
 real = ["car", "houses_full_reduced", "moto", "socnet"]
 synthetic = ["delaunay_graphs", "knn_k3_graphs", "knn_k4_graphs", "knn_k5_graphs", "scale_free_graphs", "small_world_k4_graphs", "small_world_k5_graphs"]
 # methods = ['HKSmin', 'WKS', 'HKSd5', 'HKSd10', 'MMSrow min', 'MMSdiag min', 'MMRd5', 'MMDd5', 'MMRd10', 'MMDd10']
-methods = ['HKS', 'WKS', 'MMSrow min', 'MMSdiag min', 'MMSrow d5', 'MMSdiag d5', 'MMSrow d10', 'MMSdiag d10']
+methods = ['HKS', 'WKS', 'MMS($row$)min', 'MMS($diag$)min', 'MMS($row$)d5', 'MMS($diag$)d5', 'MMS($row$)d10', 'MMS($diag$)d10']
 
 with open('table.tex', 'w') as f:
 	f.write('\\hline\n')
