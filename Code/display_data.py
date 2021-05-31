@@ -1,14 +1,12 @@
 import numpy as np
 
-postfix = ["_dmin", "_d10", "_d5"]
-prefix = ["car", "houses_full_reduced", "moto", "socnet"]
-real = [pre + post for post in postfix for pre in prefix]
+real = ["car", "houses_full_reduced", "moto", "socnet"]
 synthetic = ["delaunay_graphs", "knn_k3_graphs", "knn_k4_graphs", "knn_k5_graphs", "scale_free_graphs", "small_world_k4_graphs", "small_world_k5_graphs"]
 
 print('')
 print('Real Datasets')
 print('~~~~~~~~~~~~~')
-for dataset in prefix:
+for dataset in real:
 	dmin = np.load('MAT/result_{}_dmin.npy'.format(dataset))
 	d5   = np.load('MAT/result_{}_d5.npy'.format(dataset))
 	d10  = np.load('MAT/result_{}_d10.npy'.format(dataset))
