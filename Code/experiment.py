@@ -34,7 +34,7 @@ where 'dim' are the quantiles
 => outcomeMMS[quantile][t_max][threshold][MMSdiag, errMMSdiag, MMSrow, errMMSrow]
 """
 
-# INIZIO ESPERIMENTI
+# BEGIN EXPERIMENTS
 
 outcomesHW = np.empty((len(quantiles), 4))
 outcomesMMS = np.empty((len(quantiles), len(t_max), len(thresholds), 4))
@@ -119,7 +119,7 @@ stderr_accuracyMMS = np.std(resultMMS, axis=0) / np.sqrt(resultMMS.shape[0])
 outcomesMMS[..., ::2] = mean_accuracyMMS
 outcomesMMS[..., 1::2] = stderr_accuracyMMS
 
-# FINE ESPERIMENTI
+# END EXPERIMENTS
 
 print("{:.3f}%".format(i / tot * 100))
 end = time.time()
