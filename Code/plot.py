@@ -31,8 +31,7 @@ for dataset in synth:
 	ls = LightSource(270, 45)
 	m = cm.gist_earth#viridis
 	rgb = ls.shade(Z, cmap=m, vert_exag=0.1, blend_mode='soft')
-	surf = ax.plot_surface(X, Y, Z, facecolors=rgb, # cmap=cm.coolwarm,
-	                       linewidth=0, antialiased=False)
+	surf = ax.plot_surface(X, Y, Z, facecolors=rgb, # cmap=cm.coolwarm, linewidth=0, antialiased=False)
 	ax.set_xlabel(r"$t_{\max}$")
 	ax.set_ylabel(r"First $q$-quantiles")
 

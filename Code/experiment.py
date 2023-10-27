@@ -54,7 +54,7 @@ for g1 in range(n):
 	for g2 in range(g1 + 1, n):
 		G2 = G[0, g2]
 		n2 = G2.shape[0]
-		
+
 		min_dim = min(n1, n2)
 		ground_truth = np.random.permutation(min_dim)
 		P = np.zeros(n2 ** 2).reshape((n2, n2))
@@ -80,7 +80,7 @@ for g1 in range(n):
 			# HKS
 			assignment_HKSdiag, num_matches_hks_diag = compute_matching(HKSdiag1, HKSdiag2, ground_truth)
 			# assignment_HKSrow, num_matches_hks_row = compute_matching(HKSrow1, HKSrow2, ground_truth)
-			
+
 			# WKS
 			assignment_WKSdiag, num_matches_wks_diag = compute_matching(WKSdiag1, WKSdiag2, ground_truth)
 

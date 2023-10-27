@@ -13,7 +13,7 @@ with open('table.tex', 'w') as f:
 	f.write(r'\\')
 	f.write('\n')
 	f.write('\\hline\\hline\n')
-	
+
 	for dataset in real:
 		f.write(dataset.replace('_', '-'))
 		dmin = np.load('MAT/result_{}_dmin.npy'.format(dataset))
@@ -27,7 +27,7 @@ with open('table.tex', 'w') as f:
 			f.write(' & {:.2f}$\pm${:.2f}'.format(m[i], sd[i]))
 		f.write(r'\\')
 		f.write('\n\\hline\n')
-		
+
 	for dataset in synthetic:
 		f.write(dataset.replace('_', '-'))
 		data = np.load('MAT/result_{}.npz'.format(dataset))

@@ -29,7 +29,7 @@ i = 0
 
 for experiment in range(experiments):
 	result = np.empty((0, 4))
-	
+
 	for g1 in range(n):
 		G1 = G[0, g1].astype("float32")
 		n1 = G1.shape[0]
@@ -40,7 +40,7 @@ for experiment in range(experiments):
 
 			print("{:.3f}%".format(i / tot * 100), end="\r")
 			i += 1
-			
+
 			min_dim = min(n1, n2)
 			ground_truth = np.random.permutation(min_dim)
 			P = np.zeros(n2 ** 2, dtype="float32").reshape((n2, n2))
@@ -48,7 +48,7 @@ for experiment in range(experiments):
 				if r <= min_dim:
 					P[r, ground_truth[r]] = 1.0
 				else:
-					P[r, r] = 1.0	
+					P[r, r] = 1.0
 			G2 = P.T @ G2 @ P
 
 			# use first d quantiles
@@ -72,7 +72,7 @@ for experiment in range(experiments):
 			# HKS
 			assignment_HKSdiag, num_matches_hks_diag = compute_matching(HKSdiag1, HKSdiag2, ground_truth)
 			# assignment_HKSrow, num_matches_hks_row = compute_matching(HKSrow1, HKSrow2, ground_truth)
-			
+
 			# WKS
 			assignment_WKSdiag, num_matches_wks_diag = compute_matching(WKSdiag1, WKSdiag2, ground_truth)
 

@@ -33,7 +33,7 @@ for experiment in range(experiments):
 	for i in range(1, num_pairs + 1):
 		fname = "pair_{}.mat".format(i)
 		data = scipy.io.loadmat(path + fname)
-		
+
 		print("{:.3f}%".format(j / tot * 100), end="\r")
 		j += 1
 
@@ -68,7 +68,7 @@ for experiment in range(experiments):
 		# HKS
 		assignment_HKSdiag, num_matches_hks_diag = compute_matching(HKSdiag1, HKSdiag2, ground_truth)
 		# assignment_HKSrow, num_matches_hks_row = compute_matching(HKSrow1, HKSrow2, ground_truth)
-		
+
 		# WKS
 		assignment_WKSdiag, num_matches_wks_diag = compute_matching(WKSdiag1, WKSdiag2, ground_truth)
 

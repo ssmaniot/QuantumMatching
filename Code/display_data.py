@@ -19,7 +19,7 @@ for dataset in real:
 	print('mean: {}'.format(np.round(m, 4)))
 	print('  sd: {}'.format(np.round(sd, 4)))
 	print('\n')
-	
+
 print('Synthetic Datasets')
 print('~~~~~~~~~~~~~~~~~~')
 for dataset in synthetic:
