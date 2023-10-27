@@ -11,23 +11,31 @@ np.random.seed(46751)
 start_script = time.time()
 start = start_script
 
-datasets = ["delaunay_graphs", "knn_k3_graphs", "knn_k4_graphs", "knn_k5_graphs", "scale_free_graphs", "small_world_k4_graphs", "small_world_k5_graphs"] #["small_world_k{}_graphs".format(k) for k in range(4, 5)] 
+datasets = [
+    "delaunay_graphs",
+    "knn_k3_graphs",
+    "knn_k4_graphs",
+    "knn_k5_graphs",
+    "scale_free_graphs",
+    "small_world_k4_graphs",
+    "small_world_k5_graphs",
+]  # ["small_world_k{}_graphs".format(k) for k in range(4, 5)]
 
 for dataset in datasets:
-	path = "SynthGen/{}.npz".format(dataset)
-	print("--- {} ---".format(dataset))
+    path = "SynthGen/{}.npz".format(dataset)
+    print("--- {} ---".format(dataset))
 
-	data = np.load(path, allow_pickle=True)
-	G = data["G"]
-	n = G.shape[1]
-	quantiles = 10
+    data = np.load(path, allow_pickle=True)
+    G = data["G"]
+    n = G.shape[1]
+    quantiles = 10
 
-	t_min = 1e-1
-	t_max = [1.] #np.linspace(1, 100, num=20, endpoint=True) # go to 100
-	quantiles = [5,10,-1]#np.arange(2, quantiles + 1)
-	thresholds = [np.Inf] # np.logspace(-8, 9, num=8)# [np.Inf]
+    t_min = 1e-1
+    t_max = [1.0]  # np.linspace(1, 100, num=20, endpoint=True) # go to 100
+    quantiles = [5, 10, -1]  # np.arange(2, quantiles + 1)
+    thresholds = [np.Inf]  # np.logspace(-8, 9, num=8)# [np.Inf]
 
-	"""
+    """
 	HKS: Evec, Eval, dim
 	WKS: Evec, Eval
 	MMS: Evec, Eval, t_min, t_max, dim, threshold
@@ -38,104 +46,136 @@ for dataset in datasets:
 	=> outcomeMMS[quantile][t_max][threshold][MMSdiag, errMMSdiag, MMSrow, errMMSrow]
 	"""
 
-	# INIZIO ESPERIMENTI
+    # INIZIO ESPERIMENTI
 
-	outcomesHW = np.empty((len(quantiles), 4))
-	outcomesMMS = np.empty((len(quantiles), len(t_max), len(thresholds), 4))
-	num_pairs = n * (len(G[0,0]) - 1)
-	tot = num_pairs  * len(quantiles) * len(thresholds) * len(t_max)
-	i = 0
+    outcomesHW = np.empty((len(quantiles), 4))
+    outcomesMMS = np.empty((len(quantiles), len(t_max), len(thresholds), 4))
+    num_pairs = n * (len(G[0, 0]) - 1)
+    tot = num_pairs * len(quantiles) * len(thresholds) * len(t_max)
+    i = 0
 
-	avg_discarded = 0.0
-	pair = 0
-	resultHW = np.empty((num_pairs, len(quantiles), 2))
-	resultMMS = np.empty((num_pairs, len(quantiles), len(t_max), len(thresholds), 2))
+    avg_discarded = 0.0
+    pair = 0
+    resultHW = np.empty((num_pairs, len(quantiles), 2))
+    resultMMS = np.empty((num_pairs, len(quantiles), len(t_max), len(thresholds), 2))
 
-	for g1 in range(n):
-		G1 = G[0, g1][0]
-		n1 = G1.shape[0]
+    for g1 in range(n):
+        G1 = G[0, g1][0]
+        n1 = G1.shape[0]
 
-		for g2 in range(1, len(G[0, g1])):
-			G2 = G[0, g1][g2]
-			n2 = G2.shape[0]
-			
-			min_dim = min(n1, n2)
-			ground_truth = np.random.permutation(min_dim)
-			P = np.zeros(n2 ** 2).reshape((n2, n2))
-			for r in range(n2):
-				if r <= min_dim:
-					P[r, ground_truth[r]] = 1
-				else:
-					P[r, r] = 1
-			G2 = P.T @ G2 @ P
+        for g2 in range(1, len(G[0, g1])):
+            G2 = G[0, g1][g2]
+            n2 = G2.shape[0]
 
-			quantile_resultHW = np.empty((0, 2))
-			quantile_resultMMS = np.empty((len(quantiles), len(t_max), len(thresholds), 2))
+            min_dim = min(n1, n2)
+            ground_truth = np.random.permutation(min_dim)
+            P = np.zeros(n2**2).reshape((n2, n2))
+            for r in range(n2):
+                if r <= min_dim:
+                    P[r, ground_truth[r]] = 1
+                else:
+                    P[r, r] = 1
+            G2 = P.T @ G2 @ P
 
-			for di, d in enumerate(quantiles):
-				if d == -1:
-					d = min_dim 
-					
-				PHI1, E1 = eigsort(lap(G1))
-				HKSdiag1, _ = heat_kernel_signature(PHI1, E1, d)
-				WKSdiag1 = wave_kernel_signature(PHI1, E1)
+            quantile_resultHW = np.empty((0, 2))
+            quantile_resultMMS = np.empty(
+                (len(quantiles), len(t_max), len(thresholds), 2)
+            )
 
-				PHI2, E2 = eigsort(lap(G2))
-				HKSdiag2, _ = heat_kernel_signature(PHI2, E2, d)
-				WKSdiag2 = wave_kernel_signature(PHI2, E2)
+            for di, d in enumerate(quantiles):
+                if d == -1:
+                    d = min_dim
 
-				# HKS
-				assignment_HKSdiag, num_matches_hks_diag = compute_matching(HKSdiag1, HKSdiag2, ground_truth)
-				# assignment_HKSrow, num_matches_hks_row = compute_matching(HKSrow1, HKSrow2, ground_truth)
-				
-				# WKS
-				assignment_WKSdiag, num_matches_wks_diag = compute_matching(WKSdiag1, WKSdiag2, ground_truth)
+                PHI1, E1 = eigsort(lap(G1))
+                HKSdiag1, _ = heat_kernel_signature(PHI1, E1, d)
+                WKSdiag1 = wave_kernel_signature(PHI1, E1)
 
-				quantile_resultHW = np.vstack([quantile_resultHW, np.array([
-					num_matches_hks_diag / min_dim, # num_matches_hks_row / min_dim,
-					num_matches_wks_diag / min_dim])])
+                PHI2, E2 = eigsort(lap(G2))
+                HKSdiag2, _ = heat_kernel_signature(PHI2, E2, d)
+                WKSdiag2 = wave_kernel_signature(PHI2, E2)
 
-				PHI1, E1 = eigsort(G1)
-				PHI2, E2 = eigsort(G2)
+                # HKS
+                assignment_HKSdiag, num_matches_hks_diag = compute_matching(
+                    HKSdiag1, HKSdiag2, ground_truth
+                )
+                # assignment_HKSrow, num_matches_hks_row = compute_matching(HKSrow1, HKSrow2, ground_truth)
 
-				for tmi, tm in enumerate(t_max):
-					for ti, threshold in enumerate(thresholds):
-						print("{:.3f}%".format(i / tot * 100), end="\r")
-						i += 1
+                # WKS
+                assignment_WKSdiag, num_matches_wks_diag = compute_matching(
+                    WKSdiag1, WKSdiag2, ground_truth
+                )
 
-						MMSdiag1, MMSrow1, num_discarded = mixing_matrix_signature(PHI1, E1, t_min, tm, d, threshold)
-						MMSdiag2, MMSrow2, _ = mixing_matrix_signature(PHI2, E2, t_min, tm, d, threshold)
+                quantile_resultHW = np.vstack(
+                    [
+                        quantile_resultHW,
+                        np.array(
+                            [
+                                num_matches_hks_diag
+                                / min_dim,  # num_matches_hks_row / min_dim,
+                                num_matches_wks_diag / min_dim,
+                            ]
+                        ),
+                    ]
+                )
 
-						# MMS
-						assignment_MMSdiag, num_matches_mms_diag = compute_matching(MMSdiag1, MMSdiag2, ground_truth)
-						assignment_MMSrow, num_matches_mms_row = compute_matching(MMSrow1, MMSrow2, ground_truth)
+                PHI1, E1 = eigsort(G1)
+                PHI2, E2 = eigsort(G2)
 
-						quantile_resultMMS[di, tmi, ti] = num_matches_mms_diag / min_dim, num_matches_mms_row / min_dim
+                for tmi, tm in enumerate(t_max):
+                    for ti, threshold in enumerate(thresholds):
+                        print("{:.3f}%".format(i / tot * 100), end="\r")
+                        i += 1
 
-			resultHW[pair] = quantile_resultHW
-			resultMMS[pair] = quantile_resultMMS
-			pair += 1
+                        MMSdiag1, MMSrow1, num_discarded = mixing_matrix_signature(
+                            PHI1, E1, t_min, tm, d, threshold
+                        )
+                        MMSdiag2, MMSrow2, _ = mixing_matrix_signature(
+                            PHI2, E2, t_min, tm, d, threshold
+                        )
 
-	mean_accuracyHW = np.mean(resultHW, axis=0)
-	stderr_accuracyHW = np.std(resultHW, axis=0) / np.sqrt(resultHW.shape[0])
-	outcomesHW[..., ::2] = mean_accuracyHW
-	outcomesHW[..., 1::2] = stderr_accuracyHW
+                        # MMS
+                        assignment_MMSdiag, num_matches_mms_diag = compute_matching(
+                            MMSdiag1, MMSdiag2, ground_truth
+                        )
+                        assignment_MMSrow, num_matches_mms_row = compute_matching(
+                            MMSrow1, MMSrow2, ground_truth
+                        )
 
-	mean_accuracyMMS = np.mean(resultMMS, axis=0)
-	stderr_accuracyMMS = np.std(resultMMS, axis=0) / np.sqrt(resultMMS.shape[0])
-	outcomesMMS[..., ::2] = mean_accuracyMMS
-	outcomesMMS[..., 1::2] = stderr_accuracyMMS
+                        quantile_resultMMS[di, tmi, ti] = (
+                            num_matches_mms_diag / min_dim,
+                            num_matches_mms_row / min_dim,
+                        )
 
-	# FINE ESPERIMENTI
+            resultHW[pair] = quantile_resultHW
+            resultMMS[pair] = quantile_resultMMS
+            pair += 1
 
-	print("{:.3f}%".format(i / tot * 100))
-	end = time.time()
+    mean_accuracyHW = np.mean(resultHW, axis=0)
+    stderr_accuracyHW = np.std(resultHW, axis=0) / np.sqrt(resultHW.shape[0])
+    outcomesHW[..., ::2] = mean_accuracyHW
+    outcomesHW[..., 1::2] = stderr_accuracyHW
 
-	np.savez("MAT/result_{}".format(dataset), outcomeHW = outcomesHW, outcomeMMS = outcomesMMS,
-		quantiles = quantiles, t_max = t_max, thresholds = thresholds)
+    mean_accuracyMMS = np.mean(resultMMS, axis=0)
+    stderr_accuracyMMS = np.std(resultMMS, axis=0) / np.sqrt(resultMMS.shape[0])
+    outcomesMMS[..., ::2] = mean_accuracyMMS
+    outcomesMMS[..., 1::2] = stderr_accuracyMMS
 
-	print("Elapsed time", timer(start, end))
-	start = end
+    # FINE ESPERIMENTI
+
+    print("{:.3f}%".format(i / tot * 100))
+    end = time.time()
+
+    np.savez(
+        "MAT/result_{}".format(dataset),
+        outcomeHW=outcomesHW,
+        outcomeMMS=outcomesMMS,
+        quantiles=quantiles,
+        t_max=t_max,
+        thresholds=thresholds,
+    )
+
+    print("Elapsed time", timer(start, end))
+    start = end
 
 print("---------------------------------")
 print("Elapsed time (total):", timer(start_script, end))
