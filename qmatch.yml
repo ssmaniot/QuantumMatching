@@ -1,0 +1,14 @@
+name: qmatch
+channels:
+  - https://conda.anaconda.org/gurobi
+  - defaults
+dependencies:
+  - python=3.8
+  - numpy
+  - scipy
+  - scikit-learn
+  - networkx
+  - matplotlib
+  - conda-build
+  - conda
+prefix: C:\Users\Asus\anaconda3\envs\qmatch
